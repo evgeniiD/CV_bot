@@ -24,4 +24,8 @@ updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_front, patter
 
 updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_IB, pattern='^IB$'))
 
+updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_back, pattern='^back$'))
+
+updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_aws, pattern='^AWS$'))
+
 updater.start_polling()

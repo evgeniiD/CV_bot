@@ -68,7 +68,7 @@ def about_IB(update, context):
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='Увлекался пентестом по черному и не только. Участвовал в CTF на базе университета и не только.'
                                 'Поработать нигде не довелось, так как учеба, все дела. Принимал участие в bug-bounty программах.'
-                                'На 3 курсе проходил практику во ФСТЭКе. За те 2 месяца изучил 149фз.и 152фз. и познал некоторые таинства')
+                                'На 3 курсе проходил практику во ФСТЭКе. За те 2 месяца изучил 149фз.и 152фз. и познал некоторые таинства.')
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='У меня есть еще что рассказать, но это будет уже совсем не кратко.')
 
@@ -77,5 +77,42 @@ def about_IB(update, context):
                              [InlineKeyboardButton("ИБ", callback_data='IB'),
                               InlineKeyboardButton("AWS", callback_data='AWS')],
                              [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
+    reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
+    query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
+
+def about_back(update, context):
+    query = update.callback_query
+    query.edit_message_text(text = "То, чем я занимаюсь сейчас.".format(query.data))
+    query.bot.send_message(chat_id=query.message.chat_id,
+                           text='Активно учу Python3. Весь этот бот написан на нем. '
+                                'Из умений и знаний: git,mysql,django. '
+                                'Типы данных, декораторы(тут они применяются), итераторы. Знаком с ООП. ' 
+                                'Еще на первых курсах уника приходилось писать на C++. ')
+    query.bot.send_message(chat_id=query.message.chat_id,
+                           text='У меня есть еще что рассказать, но это будет уже совсем не кратко.')
+
+    keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
+                              InlineKeyboardButton("Бэкэнд", callback_data='back')],
+                             [InlineKeyboardButton("ИБ", callback_data='IB'),
+                              InlineKeyboardButton("AWS", callback_data='AWS')],
+                             [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
+    reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
+    query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
+def about_aws(update, context):
+    query = update.callback_query
+    query.edit_message_text(text="Для души и просто полезно.".format(query.data))
+    query.bot.send_message(chat_id=query.message.chat_id,
+                            text='S3, EC2, LoadBalancer, VPC, CloudWatch, CloudTrail. '
+                                 'Примерно в октябре хочу пройти сертификацию на SAA. ')
+    query.bot.send_message(chat_id=query.message.chat_id,
+                               text='Если интересно, можем поболтать.')
+
+    keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
+                                  InlineKeyboardButton("Бэкэнд", callback_data='back')],
+                                 [InlineKeyboardButton("ИБ", callback_data='IB'),
+                                  InlineKeyboardButton("AWS", callback_data='AWS')],
+                                 [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
