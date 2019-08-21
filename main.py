@@ -22,4 +22,6 @@ updater.dispatcher.add_handler(CallbackQueryHandler(handlers.button_to_calm_down
 
 updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_front, pattern='^front$'))
 
+updater.dispatcher.add_handler(CallbackQueryHandler(handlers.about_IB, pattern='^IB$'))
+
 updater.start_polling()
