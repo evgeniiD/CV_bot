@@ -1,10 +1,11 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
-from cv_bot import mytoken
+from cv_bot import mytoken, db
 from functools import wraps
+from telegram.ext import ConversationHandler
 
 phone = mytoken.myphone
 email = mytoken.mymail
-
+NAME, COMPANY, IMPROVE = range(3)
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
@@ -30,6 +31,7 @@ def start(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_for_start_bio)
     update.message.reply_text('Начнем?', reply_markup=reply_markup)
 
+
 @send_typing_action
 def button_for_start_bio(update, context):
     query = update.callback_query
@@ -47,6 +49,7 @@ def button_for_start_bio(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('**Игнорируйте этот текст. Кнопку по другому не присобачить**', reply_markup=reply_markup)
 
+
 @send_typing_action
 def button_to_calm_down(update, context):
     query = update.callback_query
@@ -59,6 +62,7 @@ def button_to_calm_down(update, context):
                              [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
 
 @send_typing_action
 def about_front(update, context):
@@ -76,6 +80,7 @@ def about_front(update, context):
                              [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
 
 @send_typing_action
 def about_IB(update, context):
@@ -96,6 +101,7 @@ def about_IB(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
+
 @send_typing_action
 def about_back(update, context):
     query = update.callback_query
@@ -114,6 +120,7 @@ def about_back(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
+
 @send_typing_action
 def about_aws(update, context):
     query = update.callback_query
@@ -131,6 +138,7 @@ def about_aws(update, context):
                              [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
 
 @send_typing_action
 def go_next(update, context):
@@ -157,6 +165,7 @@ def go_next(update, context):
     query.message.reply_text('Или же посмотреть всё, полезное вам,'
                              ' но в укороченном варианте. ', reply_markup=reply_markup)
 
+
 @send_typing_action
 def brief_bio(update, context):
     query = update.callback_query
@@ -173,17 +182,33 @@ def brief_bio(update, context):
     query.message.reply_text('У меня к вам маааленькая просьба. Ответьте пожалуйста на три вопроса. ', reply_markup=reply_markup)
 
 
-# def feed_back(update, context):
+def feed_back(update, context):
+    query = update.callback_query
+    query.edit_message_text(text="Заранее спасибо!.".format(query.data))
+    query.bot.send_message(chat_id=query.message.chat_id,
+                           text='Как вас зовут?')
+    return NAME
 
-'''def name(update, context):
-    update
-    pass
+
+def name(update, context):
+    user_name = update.message.text
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text=user_name)
+    context.bot.send_message(chat_id=update.message.chat_id, text="Из какой вы компании?")
+    return COMPANY
 
 
 def company(update, context):
-    pass
+    user_company = update.message.text
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text=user_company)
+    context.bot.send_message(chat_id=update.message.chat_id, text="Как улучшить бота и информацию в нем?")
+    return IMPROVE
 
 
 def improve(update, context):
-    pass
-'''
+    user_improve = update.message.text
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text=user_improve)
+    context.bot.send_message(chat_id=update.message.chat_id, text="Спасибо!")
+    return ConversationHandler.END

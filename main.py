@@ -9,7 +9,7 @@ updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 
-NAME, COMPANY, IMPROVE = range(3)
+
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -36,13 +36,16 @@ updater.dispatcher.add_handler(CallbackQueryHandler(handlers.brief_bio, pattern=
 
 #updater.dispatcher.add_handler(CallbackQueryHandler(handlers.feed_back, pattern='^feed_back$'))
 
-'''conv_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(handlers.feed_back,pattern='^feed_back$')],
+conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(handlers.feed_back, pattern='^feed_back$')],
     states={
-        NAME: [MessageHandler(Filters.text, handlers.name)],
-        COMPANY: [MessageHandler(Filters.text, handlers.company)],
-        IMPROVE: [MessageHandler(Filters.text, handlers.improve)]
-    }
+        handlers.NAME: [MessageHandler(Filters.text, handlers.name)],
+        handlers.COMPANY: [MessageHandler(Filters.text, handlers.company)],
+        handlers.IMPROVE: [MessageHandler(Filters.text, handlers.improve)]
+    },
+    fallbacks=[]
 )
-'''
+
+
+dispatcher.add_handler(conv_handler)
 updater.start_polling()
