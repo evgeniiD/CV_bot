@@ -1,9 +1,23 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from cv_bot import mytoken
+from functools import wraps
 
 phone = mytoken.myphone
 email = mytoken.mymail
 
+
+def send_typing_action(func):
+    """Sends typing action while processing func command."""
+
+    @wraps(func)
+    def command_func(update, context, *args, **kwargs):
+        context.bot.send_chat_action(chat_id=update.effective_message.chat_id, action=ChatAction.TYPING)
+        return func(update, context, *args, **kwargs)
+
+    return command_func
+
+
+@send_typing_action
 def start(update, context):
     context.bot.send_message(chat_id=update.message.chat_id,
                              text='О, привет!')
@@ -12,11 +26,11 @@ def start(update, context):
     context.bot.send_message(chat_id=update.message.chat_id,
                              text='Здесь я попытаюсь вкратце рассказать о себе и своих навыках')
 
-    keyboard_for_start_bio = [[InlineKeyboardButton("Поехали!", callback_data='start bio')]]
+    keyboard_for_start_bio = [[InlineKeyboardButton("Поехали!", callback_data='start_bio')]]
     reply_markup = InlineKeyboardMarkup(keyboard_for_start_bio)
     update.message.reply_text('Начнем?', reply_markup=reply_markup)
 
-
+@send_typing_action
 def button_for_start_bio(update, context):
     query = update.callback_query
     query.edit_message_text(text="Итак...".format(query.data))
@@ -28,32 +42,15 @@ def button_for_start_bio(update, context):
                            text='За эти 6 лет я много чего опробовал( интересно было). ')
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='У меня есть опыт в ИБ, фронтэнде, и бэкэнде, а еще немного в AWS.')
-  
+
     keyboard_to_calm_down = [[InlineKeyboardButton("Воу, воу полегче!!!!1", callback_data='calm_down')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
-    query.message.reply_text('**Игнорируйте этот текст. Кнопку по другому не присобачить**',reply_markup=reply_markup)
+    query.message.reply_text('**Игнорируйте этот текст. Кнопку по другому не присобачить**', reply_markup=reply_markup)
 
-
+@send_typing_action
 def button_to_calm_down(update, context):
     query = update.callback_query
     query.edit_message_text(text="Ок, я понял, с чего начать?".format(query.data))
-
-    keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
-                              InlineKeyboardButton("Бэкэнд", callback_data='back')],
-                             [InlineKeyboardButton("ИБ", callback_data='IB'),
-                              InlineKeyboardButton("AWS", callback_data='AWS')],
-                             [InlineKeyboardButton("Все прочитано! Давай дальше.",callback_data='go_next')]]
-    reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
-    query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
-
-
-def about_front(update, context):
-    query = update.callback_query
-    query.edit_message_text(text = "Фронтэндом я занимался около 8 месяцев, по залету.".format(query.data))
-    query.bot.send_message(chat_id=query.message.chat_id,
-                           text='Получилось поработать в компании преподователя и пройти летнюю стажировку в EPAM. '
-                                'За это время изучил:JS,CSS,HTML,\n React(чуть-чуть). Удалось поработать с несколькими '
-                                'CMS: MODx,Bitrix,Wordpress,\n Joomla(господи прости). Знаком с СУБД - MySQL.')
 
     keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
                               InlineKeyboardButton("Бэкэнд", callback_data='back')],
@@ -63,10 +60,27 @@ def about_front(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
+@send_typing_action
+def about_front(update, context):
+    query = update.callback_query
+    query.edit_message_text(text="Фронтэндом я занимался около 8 месяцев, по залету.".format(query.data))
+    query.bot.send_message(chat_id=query.message.chat_id,
+                           text='Получилось поработать в компании преподователя и пройти летнюю стажировку в EPAM. '
+                                'За это время изучил:JS,CSS,HTML,\n React(чуть-чуть). Удалось поработать с несколькими '
+                                'CMS: MODX,Bitrix,Wordpress,\n Joomla(господи прости). Знаком с СУБД - MySQL.')
 
+    keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
+                              InlineKeyboardButton("Бэкэнд", callback_data='back')],
+                             [InlineKeyboardButton("ИБ", callback_data='IB'),
+                              InlineKeyboardButton("AWS", callback_data='AWS')],
+                             [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
+    reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
+    query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
+
+@send_typing_action
 def about_IB(update, context):
     query = update.callback_query
-    query.edit_message_text(text = "Это было давно(1-2 курс) и неправда.".format(query.data))
+    query.edit_message_text(text="Это было давно(1-2 курс) и неправда.".format(query.data))
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='Увлекался пентестом по черному и не только. Участвовал в CTF на базе университета и не только.'
                                 'Поработать нигде не довелось, так как учеба, все дела. Принимал участие в bug-bounty программах.'
@@ -82,17 +96,15 @@ def about_IB(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
-
+@send_typing_action
 def about_back(update, context):
     query = update.callback_query
-    query.edit_message_text(text = "То, чем я занимаюсь сейчас.".format(query.data))
+    query.edit_message_text(text="То, чем я занимаюсь сейчас.".format(query.data))
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='Активно учу Python3. Весь этот бот написан на нем. '
                                 'Из умений и знаний: git,mysql,django. '
-                                'Типы данных, декораторы(тут они применяются), итераторы. Знаком с ООП. ' 
+                                'Типы данных, декораторы(тут они применяются), итераторы. Знаком с ООП. '
                                 'Еще на первых курсах уника приходилось писать на C++. ')
-    query.bot.send_message(chat_id=query.message.chat_id,
-                           text='У меня есть еще что рассказать, но это будет уже совсем не кратко.')
 
     keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
                               InlineKeyboardButton("Бэкэнд", callback_data='back')],
@@ -102,24 +114,25 @@ def about_back(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
+@send_typing_action
 def about_aws(update, context):
     query = update.callback_query
     query.edit_message_text(text="Для души и просто полезно.".format(query.data))
     query.bot.send_message(chat_id=query.message.chat_id,
-                            text='S3, EC2, LoadBalancer, VPC, CloudWatch, CloudTrail. '
-                                 'Примерно в октябре хочу пройти сертификацию на SAA. ')
+                           text='S3, EC2, LoadBalancer, VPC, CloudWatch, CloudTrail. '
+                                'Примерно в октябре хочу пройти сертификацию на SAA. ')
     query.bot.send_message(chat_id=query.message.chat_id,
-                               text='Если интересно, можем поболтать.')
+                           text='Если интересно, можем поболтать.')
 
     keyboard_to_calm_down = [[InlineKeyboardButton("Фронтэнд", callback_data='front'),
-                                  InlineKeyboardButton("Бэкэнд", callback_data='back')],
-                                 [InlineKeyboardButton("ИБ", callback_data='IB'),
-                                  InlineKeyboardButton("AWS", callback_data='AWS')],
-                                 [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
+                              InlineKeyboardButton("Бэкэнд", callback_data='back')],
+                             [InlineKeyboardButton("ИБ", callback_data='IB'),
+                              InlineKeyboardButton("AWS", callback_data='AWS')],
+                             [InlineKeyboardButton("Все прочитано! Давай дальше.", callback_data='go_next')]]
     reply_markup = InlineKeyboardMarkup(keyboard_to_calm_down)
     query.message.reply_text('Расскажи мне про...', reply_markup=reply_markup)
 
-
+@send_typing_action
 def go_next(update, context):
     query = update.callback_query
     query.edit_message_text(text="Знаю английский. Себя оцениваю на уровень"
@@ -133,17 +146,18 @@ def go_next(update, context):
                            text='Опыта работы как такового было мало, так как учеба(. ')
     query.bot.send_message(chat_id=query.message.chat_id,
                            text='На этом, в прицнипе, всё. Мои контакты будут ниже. \n'
-                             'Мейл: {0} \nМобильник: {1} \n'.format(email, phone))
+                                'Мейл: {0} \nМобильник: {1} \n'.format(email, phone))
 
     keyboard_for_bite = [[InlineKeyboardButton("Тык!", url='https://t.me/abellindsey')]]
     reply_markup = InlineKeyboardMarkup(keyboard_for_bite)
-    query.message.reply_text('Вы можете написать мне прямо в tg: ',reply_markup=reply_markup)
+    query.message.reply_text('Вы можете написать мне прямо в tg: ', reply_markup=reply_markup)
 
     keyboard_for_brief_bio = [[InlineKeyboardButton("Еще один тык", callback_data='brief_bio')]]
     reply_markup = InlineKeyboardMarkup(keyboard_for_brief_bio)
     query.message.reply_text('Или же посмотреть всё, полезное вам,'
                              ' но в укороченном варианте. ', reply_markup=reply_markup)
 
+@send_typing_action
 def brief_bio(update, context):
     query = update.callback_query
     query.edit_message_text(text="Еще раз. Только кратко.".format(query.data))
@@ -153,3 +167,23 @@ def brief_bio(update, context):
                                 'итераторы. Знаком с ООП. '
                                 'Английский ближе к В2, усидчивый, быстро обучаюсь и хочу учиться. '
                                 'Положил глаз на Big data и ML')
+
+    keyboard_for_brief_bio = [[InlineKeyboardButton("Оставить фидбэк", callback_data='feed_back')]]
+    reply_markup = InlineKeyboardMarkup(keyboard_for_brief_bio)
+    query.message.reply_text('У меня к вам маааленькая просьба. Ответьте пожалуйста на три вопроса. ', reply_markup=reply_markup)
+
+
+# def feed_back(update, context):
+
+'''def name(update, context):
+    update
+    pass
+
+
+def company(update, context):
+    pass
+
+
+def improve(update, context):
+    pass
+'''
