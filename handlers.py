@@ -1,11 +1,19 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
-from cv_bot import mytoken, db
+from cv_bot import mytoken
 from functools import wraps
 from telegram.ext import ConversationHandler
+import sqlite3
 
 phone = mytoken.myphone
 email = mytoken.mymail
 NAME, COMPANY, IMPROVE = range(3)
+
+conn = sqlite3.connect("final.db", check_same_thread=False)  # или :memory: чтобы сохранить в RAM
+cursor = conn.cursor()
+
+#cursor.execute("""CREATE TABLE dbforfeedback
+ #                 (id integer , name text, company text, improve text)
+  #             """)
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
@@ -20,6 +28,9 @@ def send_typing_action(func):
 
 @send_typing_action
 def start(update, context):
+    cursor.execute("""insert into dbforfeedback (id)
+    values (?) """, (update.message.chat_id,))
+    conn.commit()
     context.bot.send_message(chat_id=update.message.chat_id,
                              text='О, привет!')
     context.bot.send_message(chat_id=update.message.chat_id,
@@ -192,23 +203,23 @@ def feed_back(update, context):
 
 def name(update, context):
     user_name = update.message.text
-    context.bot.send_message(chat_id=update.message.chat_id,
-                             text=user_name)
+    cursor.execute("""update dbforfeedback set name = ? where id = ?""", (update.message.text, update.message.chat_id))
+    conn.commit()
     context.bot.send_message(chat_id=update.message.chat_id, text="Из какой вы компании?")
     return COMPANY
 
 
 def company(update, context):
     user_company = update.message.text
-    context.bot.send_message(chat_id=update.message.chat_id,
-                             text=user_company)
+    cursor.execute("""update dbforfeedback set company = ? where id = ?""", (update.message.text, update.message.chat_id))
+    conn.commit()
     context.bot.send_message(chat_id=update.message.chat_id, text="Как улучшить бота и информацию в нем?")
     return IMPROVE
 
 
 def improve(update, context):
     user_improve = update.message.text
-    context.bot.send_message(chat_id=update.message.chat_id,
-                             text=user_improve)
+    cursor.execute("""update dbforfeedback set improve = ? where id = ?""", (update.message.text, update.message.chat_id))
+    conn.commit()
     context.bot.send_message(chat_id=update.message.chat_id, text="Спасибо!")
     return ConversationHandler.END
